@@ -1,4 +1,8 @@
+# requirements.txt
 discord.py
-python-dotenv
-asyncpg
-psycopg2-binary  # Required for some environments to connect to PostgreSQL
+openpyxl
+reportlab
+Pillow
+psycopg2-binary
+SQLAlchemy
+Flask  # <-- THIS LINE IS ESSENTIAL
