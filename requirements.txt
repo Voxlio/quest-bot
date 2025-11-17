@@ -3,6 +3,7 @@ aiohttp==3.12.15
 aiosignal==1.4.0
 annotated-types==0.7.0
 attrs==25.3.0
+asyncpg
 audioop-lts==0.2.2
 bitarray==3.7.2
 blinker==1.9.0
@@ -54,7 +55,6 @@ packaging==25.0
 parsimonious==0.10.0
 pillow==11.3.0
 propcache==0.3.2
-psycopg2-binary
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pycparser==2.22
