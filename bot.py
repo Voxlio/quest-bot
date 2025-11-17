@@ -10,11 +10,13 @@ import os
 import datetime
 import random
 from typing import Optional, List
+from threading import Thread # Added for Flask
 
 import discord
 from discord.ext import commands
 from discord.ui import Button, View, Select
 from dotenv import load_dotenv
+from flask import Flask # Added for Flask
 
 # --- DATABASE IMPORTS ---
 import asyncpg
@@ -48,12 +50,21 @@ db_pool: asyncpg.Pool = None
 
 async def init_db():
     global db_pool
-    DATABASE_URL = os.environ.get("DATABASE_URL")
     
-    if not DATABASE_URL:
-        print("FATAL: DATABASE_URL environment variable is not set.")
-        # Raise an error or exit if the connection is critical
+    # --- START: MODIFIED DB LOAD SECTION ---
+    DB_USER = os.environ.get("DB_USER")
+    DB_PASS = os.environ.get("DB_PASS")
+    DB_HOST = os.environ.get("DB_HOST")
+    DB_PORT = os.environ.get("DB_PORT")
+    DB_NAME = os.environ.get("DB_NAME")
+    
+    if not all([DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]):
+        print("FATAL: One or more individual DB environment variables (DB_USER, DB_PASS, etc.) are not set.")
         return
+
+    # Construct the DATABASE_URL from individual components
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    # --- END: MODIFIED DB LOAD SECTION ---
 
     try:
         # Create a connection pool to manage connections efficiently
@@ -875,7 +886,7 @@ async def build_review_embed():
                 "SELECT COUNT(*) AS cnt FROM submissions WHERE task_id=$1",
                 r['id']
             )
-            total_submissions_for_task = total_submissions_row['cnt'] if total_submissions_row else 0
+            total_submissions_for_task = total_submissions_row['cnt'] if total_submissions_for_task else 0
 
             bar = progress_bar(r['pending_count'], total_submissions_for_task)
             emoji = medal[i] if i < len(medal) else "🔸"
@@ -1224,8 +1235,7 @@ async def admin_dashboard_cmd(ctx: commands.Context):
 # -------------------------
 # 🌐 Web Server for Keep-Alive (FREE TIER ONLY)
 # -------------------------
-from flask import Flask
-from threading import Thread
+# The imports for Flask and Thread are moved to the top of the file for cleanliness.
 
 # Create the Flask app
 app = Flask(__name__)
@@ -1250,10 +1260,14 @@ t = Thread(target=run_flask_server)
 t.start()
 
 # 2. Start the Discord bot in the main thread
+# The bot.run(TOKEN) call is intentionally placed outside of the __main__ check 
+# in this structure to ensure Flask and bot start on deployment platforms.
 bot.run(TOKEN)
 
 # =========================
 # RUN
 # =========================
 if __name__ == "__main__":
-    bot.run(TOKEN)
+    # This block is often ignored by deployment platforms that use the 'web' process type,
+    # but it's kept here for local testing. The main execution is above.
+    pass
