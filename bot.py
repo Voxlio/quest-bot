@@ -1219,8 +1219,38 @@ async def admin_dashboard_cmd(ctx: commands.Context):
     embed.add_field(name="✅ Total Quests", value=f"**{total_tasks}**", inline=True)
     embed.add_field(name="🧑‍🤝‍🧑 Active Users", value=f"**{total_users}**", inline=True)
     embed.add_field(name="🚫 Banned Users", value=f"**{banned_users}**", inline=True)
-    
     await ctx.send(embed=embed, view=AdminDashboardView())
+
+# -------------------------
+# 🌐 Web Server for Keep-Alive (FREE TIER ONLY)
+# -------------------------
+from flask import Flask
+from threading import Thread
+
+# Create the Flask app
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    """A simple endpoint for the external pinger to hit."""
+    return "Bot is alive and running!"
+
+def run_flask_server():
+    """Start Flask in a separate thread."""
+    # Note: We must use 0.0.0.0 and the port specified by Render (usually 8080 or the PORT env var)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
+
+# -------------------------
+# ▶ Run Bot (UPDATED)
+# -------------------------
+
+# 1. Start the Flask server in a background thread
+t = Thread(target=run_flask_server)
+t.start()
+
+# 2. Start the Discord bot in the main thread
+bot.run(TOKEN)
 
 # =========================
 # RUN
