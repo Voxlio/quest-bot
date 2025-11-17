@@ -1,0 +1,6 @@
+# Exclude folders and files that should not be on GitHub
+/proofs/
+.env
+__pycache__/
+*.pyc
+*.egg-info/

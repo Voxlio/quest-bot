@@ -1,0 +1,4 @@
+discord.py
+python-dotenv
+asyncpg
+psycopg2-binary  # Required for some environments to connect to PostgreSQL
